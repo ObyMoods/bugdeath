@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Web Bug Telegram</title>
+
+<style>
+:root{
+  --bg:#04060a; --card:#071018; --neon:#00f3de; --muted:#9bdede; --accent:#00d8c5; --danger:#ff6b6b;
+  --glass: rgba(255,255,255,0.03);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(0,243,222,0.03), transparent),
+              linear-gradient(180deg,#040506,#071018);
+  color:var(--neon);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+
+.header{
+  height:64px; display:flex; align-items:center; gap:12px;
+  padding:10px 16px; position:sticky; top:0; z-index:40;
+  background: linear-gradient(90deg, rgba(0,0,0,.2), rgba(0,0,0,.05));
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+.brand{font-weight:800; font-size:18px; color:var(--neon); text-shadow:0 0 12px rgba(0,243,222,.12)}
+.menu-btn{
+  width:44px;height:44px;border-radius:10px;border:1px solid rgba(0,243,222,.08);
+  background:transparent;color:var(--neon);font-size:20px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 30px rgba(0,243,222,.03)
+}
+.header-right{margin-left:auto; color:var(--muted); font-size:13px}
+
+.main{max-width:920px;margin:28px auto;padding:12px}
+.center-wrap{display:flex; gap:20px; align-items:flex-start; justify-content:center}
+
+.login-card{
+  width:360px; max-width:92vw; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15));
+  border-radius:14px; padding:22px; box-shadow: 0 18px 60px rgba(0,243,222,.04); text-align:center;
+}
+.login-card h2{margin:0 0 8px; color:var(--neon); text-shadow:0 0 12px rgba(0,243,222,.08)}
+.login-card p.small{color:var(--muted); margin:6px 0 14px; font-size:13px}
+.input, select, textarea, button{
+  width:100%; padding:12px; border-radius:10px; border:none; font-size:14px;
+}
+.input{background:#f6ffff; color:#012}
+.select{background:#f6ffff; color:#012}
+.textarea{min-height:100px; resize:vertical; background:#f6ffff; color:#012}
+.btn-primary{background:var(--neon); color:#042; font-weight:800; cursor:pointer; box-shadow:0 10px 30px rgba(0,243,222,.08)}
+.btn-ghost{background:transparent; color:var(--neon); border:1px solid rgba(255,255,255,.03)}
+.small{font-size:13px; color:var(--muted)}
+
+.dashboard{display:none; width:100%}
+.panel{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15));
+  border-radius:12px; padding:16px; box-shadow:0 12px 40px rgba(0,243,222,.03); margin-bottom:14px;
+}
+.panel h3{margin:0 0 10px; color:var(--neon)}
+.row{display:flex; gap:12px}
+.col{flex:1}
+.kv{font-size:13px;color:var(--muted); margin-bottom:8px}
+.status{margin-top:10px; font-size:14px; text-align:center}
+.ok{color:#5fffb6} .err{color:var(--danger)}
+
+.sidebar{
+  position:fixed; left:-360px; top:0; width:340px; height:100vh; background:#08131a; padding:18px;
+  box-shadow: 6px 0 40px rgba(0,0,0,.6); transition:all .28s; z-index:60; overflow:auto;
+}
+.sidebar.open{left:0}
+.sidebar h3{color:var(--neon); margin-top:0}
+.sidebar .small{color:var(--muted)}
+.sidebar .panel-section{margin-top:14px}
+.list{background:#071717; padding:8px; border-radius:8px; max-height:240px; overflow:auto; margin-top:8px}
+.list div{padding:8px; font-size:13px; color:var(--muted); border-bottom:1px dashed rgba(255,255,255,.03)}
+.item-btn{float:right; background:transparent; border:none; color:var(--danger); cursor:pointer}
+
+@media (max-width:820px){
+  .center-wrap{flex-direction:column; align-items:center}
+  .sidebar{width:100%; left:-100%}
+  .sidebar.open{left:0}
+}
+
+.close-x{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:36px;
+  height:36px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.06);
+  background:transparent;
+  color:var(--neon);
+  font-size:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,0.6);
+  z-index:80;
+}
+.close-x:hover{ transform:translateY(-1px); }
+
+@keyframes glow {
+  0%,100% { box-shadow:0 0 6px #00f3de,0 0 12px #00d8c5; }
+  50% { box-shadow:0 0 18px #00f3de,0 0 36px #00d8c5; }
+}
+</style>
+</head>
+<body>
+  <div class="header">
+    <button id="menuBtn" class="menu-btn" title="Admin menu">☰</button>
+    <div class="brand">Web Telegram Bug</div>
+    <div class="header-right">Selamat Datang!</div>
+  </div>
+
+  <aside id="sidebar" class="sidebar" aria-hidden="true">
+    <h3>Admin</h3>
+    <button id="closeSidebar" class="close-x" aria-label="Tutup menu">✕</button>
+    <div class="small">Login untuk kelola premium, teks, stiker</div>
+
+    <div style="margin-top:12px">
+      <input id="adminUser" class="input" placeholder="Username" />
+      <div style="display:flex; gap:8px; margin-top:8px">
+        <input id="adminPass" class="input" placeholder="Password" type="password" />
+        <button id="togglePass" class="menu-btn" title="show/hide">👁️</button>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:8px">
+        <button id="btnAdminLogin" class="btn-primary">Login</button>
+        <button id="btnAdminLogout" class="btn-ghost" style="display:none">Logout</button>
+      </div>
+      <div id="adminMsg" class="small" style="margin-top:8px"></div>
+    </div>
+
+    <div id="adminArea" style="display:none">
+      <div class="panel-section">
+        <h3>Kelola Premium</h3>
+        <div class="small">Tambah / Hapus user premium (set hari)</div>
+        <div style="display:flex; gap:8px; margin-top:8px">
+          <input id="premId" class="input" placeholder="User ID" />
+          <input id="premDays" class="input" placeholder="Hari" type="number" style="width:100px" />
+        </div>
+        <div style="display:flex; gap:8px; margin-top:8px">
+          <button id="addPrem" class="btn-primary">Tambah</button>
+          <button id="delPrem" class="btn-ghost">Hapus</button>
+        </div>
+        <div class="list" id="premList"></div>
+      </div>
+      
+      <div class="panel-section">
+  <h3>Avatar Login Premium</h3>
+  <div class="small">Ganti foto yang tampil di login premium</div>
+
+  <!-- Preview avatar -->
+  <div style="text-align:center; margin-top:8px; margin-bottom:8px;">
+    <img id="adminAvatarPreview" src="https://via.placeholder.com/120?text=Premium" 
+         style="width:120px; height:120px; border-radius:50%; border:3px solid var(--neon); object-fit:cover;" />
+  </div>
+
+  <!-- Input link Catbox -->
+  <input id="adminAvatarUrl" class="input" placeholder="Masukkan link Catbox (PNG/JPG/WEBP)" />
+
+  <button id="btnUpdateAvatar" class="btn-primary" style="margin-top:8px;">Update Foto</button>
+</div>
+<div id="avatarMsg" class="small" style="margin-top:8px; text-align:center;"></div>
+      
+      <div class="panel-section">
+        <h3>Kelola Text</h3>
+        <div class="small">Teks yang bisa dipilih user</div>
+        <input id="newText" class="input" placeholder="Masukkan teks..." />
+        <div style="display:flex; gap:8px; margin-top:8px">
+          <button id="addText" class="btn-primary">Tambah</button>
+          <button id="clearText" class="btn-ghost">Hapus Semua</button>
+        </div>
+        <div class="list" id="textList"></div>
+      </div>
+      
+
+      <div class="panel-section">
+        <h3>Kelola Sticker</h3>
+        <div class="small">Masukkan sticker file_id</div>
+        <input id="newSticker" class="input" placeholder="Sticker file_id" />
+        <div style="display:flex; gap:8px; margin-top:8px">
+          <button id="addSticker" class="btn-primary">Tambah</button>
+          <button id="clearStickers" class="btn-ghost">Hapus Semua</button>
+        </div>
+        <div class="list" id="stickerList"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="center-wrap">
+
+<div class="login-card" id="loginCard" style="text-align:center;">
+  <h2>Login User Premium</h2>
+
+  <!-- Avatar fixed dari admin -->
+  <img id="premiumAvatar" src="https://via.placeholder.com/120?text=Premium" 
+       style="width:120px; height:120px; border-radius:50%; border:3px solid var(--neon); object-fit:cover; margin-bottom:16px;" />
+
+  <!-- Input ID Premium -->
+  <input id="loginId" class="input" placeholder="Masukkan ID Anda" style="margin-bottom:12px;" />
+
+  <div style="display:flex; gap:8px; justify-content:center; margin-top:10px">
+    <button id="btnLogin" class="btn-primary">Login</button>
+    <button id="btnReset" class="btn-ghost">Reset</button>
+  </div>
+
+  <div id="loginMsg" class="status small" style="margin-top:12px"></div>
+</div>
+
+      <div style="width:520px; max-width:94vw;">
+        <div class="panel" id="dashboard" style="display:none">
+          <h3>Dashboard Premium</h3>
+          <div id="premInfo" class="kv small"></div>
+
+          <div style="margin-top:8px" class="kv">Tujuan (ID user/grup, @username)</div>
+          <input id="target" class="input" placeholder="Masukkan ID user/grup atau @username" />
+
+          <div class="row" style="margin-top:8px">
+            <div class="col">
+              <div class="kv">Jenis</div>
+              <select id="typeSelect" class="input">
+                <option value="text">Text</option>
+                <option value="sticker">Sticker</option>
+              </select>
+            </div>
+            <div style="width:120px">
+              <div class="kv">Jumlah</div>
+              <input id="count" type="number" class="input" min="1" value="1" />
+            </div>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="kv">Pilih type Bug</div>
+            <select id="contentSelect" class="input"></select>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="kv">Token Bot Anda (wajib diisi sebelum kirim)</div>
+            <input id="token" class="input" placeholder="Masukkan Bot Token (example: 123456:ABC...)" />
+          </div>
+
+          <div style="display:flex; gap:8px; margin-top:12px">
+            <button id="btnSend" class="btn-primary">Kirim</button>
+            <button id="btnStop">⏹️ Stop</button>
+            <button id="btnLogout" class="btn-ghost">Logout</button>
+          </div>
+
+          <div id="sendMsg" class="status"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+<script>
+
+const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+const load = (k,def) => { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : def } catch(e){ return def } }
+
+const ADMIN_USERNAME = "ObyMoods";
+const ADMIN_PASSWORD = "12345";
+const DEFAULT_PREM_ID = "7429086469";
+const DEFAULT_PREM_DAYS = 99999;
+
+let premium = load("tb_premium", []);
+let texts = load("tb_texts", []);
+let stickers = load("tb_stickers", []);
+let stopSending = false;
+
+if(!premium.some(u=>u.id===DEFAULT_PREM_ID)){
+  premium.push({id: DEFAULT_PREM_ID, expire: Date.now() + DEFAULT_PREM_DAYS*86400000});
+  save("tb_premium", premium);
+}
+
+let sessionUser = sessionStorage.getItem("tb_user") || "";
+let sessionToken = sessionStorage.getItem("tb_tok") || "";
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+$("#menuBtn").addEventListener("click", ()=> {
+  $("#sidebar").classList.toggle("open");
+});
+
+document.addEventListener("click", (e)=>{
+  if(!e.target.closest("#sidebar") && !e.target.closest("#menuBtn")){
+    // keep it open if admin area visible and clicked inside header - but user asked no X and toggle by menu, so we won't auto-close
+    // do nothing
+  }
+});
+
+$("#togglePass").addEventListener("click", ()=>{
+  const p = $("#adminPass"); p.type = p.type === "password" ? "text" : "password";
+});
+
+$("#btnAdminLogin").addEventListener("click", ()=>{
+  const u = $("#adminUser").value.trim(), p = $("#adminPass").value;
+  if(u === ADMIN_USERNAME && p === ADMIN_PASSWORD){
+    $("#adminMsg").textContent = "Login admin sukses";
+    $("#adminArea").style.display = "block";
+    $("#btnAdminLogin").style.display = "none";
+    $("#btnAdminLogout").style.display = "inline-block";
+    renderAdmin();
+  } else {
+    $("#adminMsg").textContent = "Username / password salah";
+  }
+});
+$("#btnAdminLogout").addEventListener("click", ()=>{
+  $("#adminArea").style.display = "none";
+  $("#btnAdminLogin").style.display = "inline-block";
+  $("#btnAdminLogout").style.display = "none";
+  $("#adminMsg").textContent = "Logout";
+});
+
+$("#btnStop").addEventListener("click", () => {
+  stopSending = true;
+});
+
+function renderAdmin(){
+  premium = load("tb_premium", premium);
+  texts = load("tb_texts", texts);
+  stickers = load("tb_stickers", stickers);
+
+  $("#premList").innerHTML = premium.length ? premium.map(u=>{
+    const left = Math.max(0, Math.floor((u.expire - Date.now())/86400000));
+    return `<div><b>${u.id}</b> • ${left} hari <button class="item-btn del-prem" data-id="${u.id}">hapus</button></div>`;
+  }).join("") : `<div class="small">Belum ada user premium</div>`;
+
+  $("#textList").innerHTML = texts.length ? texts.map((t,i)=>`<div>${i+1}. ${escapeHtml(t)} <button class="item-btn del-text" data-i="${i}">hapus</button></div>`).join("") : `<div class="small">Belum ada teks</div>`;
+
+  $("#stickerList").innerHTML = stickers.length ? stickers.map((s,i)=>`<div>${i+1}. ${s} <button class="item-btn del-st" data-i="${i}">hapus</button></div>`).join("") : `<div class="small">Belum ada sticker</div>`;
+
+  populateContent();
+}
+
+function escapeHtml(str){ return (str||"").replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])); }
+
+$("#addPrem").addEventListener("click", ()=>{
+  const id = $("#premId").value.trim(); const days = parseInt($("#premDays").value)||0;
+  if(!id || days <= 0){ alert("Isi ID dan hari (>0)"); return; }
+  premium.push({id, expire: Date.now() + days*86400000});
+  save("tb_premium", premium); $("#premId").value=""; $("#premDays").value=""; renderAdmin();
+});
+$("#delPrem").addEventListener("click", ()=>{
+  const id = $("#premId").value.trim(); if(!id){ alert("Isi ID untuk dihapus"); return; }
+  premium = premium.filter(u=>u.id!==id); save("tb_premium", premium); $("#premId").value=""; renderAdmin();
+});
+$("#addText").addEventListener("click", ()=>{
+  const t = $("#newText").value.trim(); if(!t){ alert("Isi teks"); return; }
+  texts.push(t); save("tb_texts", texts); $("#newText").value=""; renderAdmin();
+});
+$("#clearText").addEventListener("click", ()=>{
+  if(confirm("Hapus semua teks?")){ texts=[]; save("tb_texts", texts); renderAdmin(); }
+});
+$("#addSticker").addEventListener("click", ()=>{
+  const s = $("#newSticker").value.trim(); if(!s){ alert("Isi sticker file_id"); return; }
+  stickers.push(s); save("tb_stickers", stickers); $("#newSticker").value=""; renderAdmin();
+});
+$("#clearStickers").addEventListener("click", ()=>{
+  if(confirm("Hapus semua sticker?")){ stickers=[]; save("tb_stickers", stickers); renderAdmin(); }
+});
+
+document.addEventListener("click", (e)=>{
+  if(e.target.matches(".del-prem")){
+    const id = e.target.dataset.id; premium = premium.filter(u=>u.id!==id); save("tb_premium", premium); renderAdmin();
+  } else if(e.target.matches(".del-text")){
+    const idx = parseInt(e.target.dataset.i); texts.splice(idx,1); save("tb_texts", texts); renderAdmin();
+  } else if(e.target.matches(".del-st")){
+    const idx = parseInt(e.target.dataset.i); stickers.splice(idx,1); save("tb_stickers", stickers); renderAdmin();
+  }
+});
+
+$("#btnLogin").addEventListener("click", ()=>{
+  const id = $("#loginId").value.trim();
+  if(!id){ $("#loginMsg").textContent = "Isi ID"; return; }
+  premium = load("tb_premium", premium);
+  const p = premium.find(u=>u.id === id && u.expire > Date.now());
+  if(!p){ $("#loginMsg").textContent = "Bukan user premium / expired"; return; }
+
+  sessionStorage.setItem("tb_user", id); sessionUser = id;
+  $("#loginMsg").textContent = "";
+  showDashboard(id);
+});
+$("#btnReset").addEventListener("click", ()=>{
+  $("#loginId").value=""; $("#loginMsg").textContent=""; sessionStorage.removeItem("tb_user"); sessionStorage.removeItem("tb_tok");
+});
+
+function showDashboard(id){
+  $("#loginCard").style.display = "none";
+  $("#dashboard").style.display = "block";
+  premium = load("tb_premium", premium);
+  const p = premium.find(u=>u.id===id);
+  const left = Math.max(0, Math.floor((p.expire - Date.now())/86400000));
+  $("#premInfo").textContent = `Premium aktif • ${left} hari • ID: ${id}`;
+
+  populateContent();
+}
+
+function populateContent(){
+  texts = load("tb_texts", texts);
+  stickers = load("tb_stickers", stickers);
+  const sel = $("#contentSelect");
+  sel.innerHTML = "";
+  if($("#typeSelect").value === "text"){
+    if(!texts.length) sel.innerHTML = '<option value="">(Belum ada teks)</option>';
+    else texts.forEach(t=> { const o = document.createElement("option"); o.value = t; o.textContent = t.length>80? t.substr(0,80)+"...": t; sel.appendChild(o); });
+  } else {
+    if(!stickers.length) sel.innerHTML = '<option value="">(Belum ada sticker)</option>';
+    else stickers.forEach(s=> { const o = document.createElement("option"); o.value = s; o.textContent = s; sel.appendChild(o); });
+  }
+}
+$("#typeSelect").addEventListener("change", populateContent);
+
+async function resolveChatId(token, target) {
+  if (!target) return null;
+  const t = target.trim();
+
+  if (/^-?\d+$/.test(t)) return t;
+
+  if (t.startsWith("@")) {
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${token}/getChat?chat_id=${encodeURIComponent(t)}`);
+      const data = await res.json();
+      if (data.ok && data.result && data.result.id) return data.result.id;
+    } catch (e) {
+      console.error("getChat error:", e);
+    }
+  }
+
+  try {
+    const res2 = await fetch(`https://api.telegram.org/bot${token}/getUpdates`);
+    const data2 = await res2.json();
+    if (data2.ok && Array.isArray(data2.result)) {
+      for (const up of data2.result) {
+        const msg = up.message || up.channel_post || up.edited_message;
+        if (msg && msg.chat && msg.chat.id) {
+
+          if (msg.from && msg.from.username && ("@" + msg.from.username).toLowerCase() === t.toLowerCase()) {
+            return msg.chat.id;
+          }
+
+          if (msg.chat.title && msg.chat.title.toLowerCase() === t.toLowerCase()) {
+            return msg.chat.id;
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error("getUpdates error:", e);
+  }
+
+  return null; 
+}
+
+async function sendContent(token, chatId, type, content, count = 1, statusEl) {
+  stopSending = false;
+  statusEl.textContent = `Mengirim Bug... ${type}…`;
+
+  for (let i = 0; i < count; i++) {
+    if (stopSending) {
+      statusEl.innerHTML = `<span class="err">⏹️ Bug Dihentikan ${i}/${count}</span>`;
+      return;
+    }
+
+    try {
+      let url = type === "text"
+        ? `https://api.telegram.org/bot${token}/sendMessage`
+        : `https://api.telegram.org/bot${token}/sendSticker`;
+
+      let bodyData = type === "text"
+        ? { chat_id: chatId, text: content }
+        : { chat_id: chatId, sticker: content };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData)
+      });
+
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.description || JSON.stringify(data));
+
+      statusEl.textContent = `Mengirim Bug... ${i + 1}/${count} ${type}...`;
+      await new Promise(r => setTimeout(r, 350));
+    } catch (err) {
+      console.error("Send failed:", err);
+      statusEl.innerHTML = `<span class="err">❌ Gagal mengirim Bug ${i+1}: ${err.message}</span>`;
+      return;
+    }
+  }
+
+  statusEl.innerHTML = `<span class="ok">✅ Berhasil mengirim Bug ${count} ${type}</span>`;
+}
+
+$("#btnSend").addEventListener("click", async () => {
+  const userId = sessionStorage.getItem("tb_user");
+  const token = $("#token").value.trim();
+  const target = $("#target").value.trim();
+  const type = $("#typeSelect").value;
+  const content = $("#contentSelect").value;
+  const count = Math.max(1, parseInt($("#count").value) || 1);
+  const statusEl = $("#sendMsg");
+
+  if (!userId) { statusEl.innerHTML = `<span class="err">Session invalid. Login ulang.</span>`; return; }
+  if (!token || !target || !content) { statusEl.innerHTML = `<span class="err">Isi semua field!</span>`; return; }
+
+  statusEl.textContent = "Mengirin Bug ke target…";
+  const chatId = await resolveChatId(token, target);
+  if (!chatId) { statusEl.innerHTML = `<span class="err">Target tidak ditemukan atau bot belum join!</span>`; return; }
+
+  await sendContent(token, chatId, type, content, count, statusEl);
+});
+
+$("#btnLogout").addEventListener("click", ()=>{
+  sessionStorage.removeItem("tb_user"); sessionStorage.removeItem("tb_tok");
+  sessionUser=""; sessionToken="";
+  $("#dashboard").style.display = "none"; $("#loginCard").style.display = "block";
+});
+
+(function init(){
+  renderAdmin();
+
+  const su = sessionStorage.getItem("tb_user");
+  if(su){ showDashboard(su); }
+
+  populateContent();
+})();
+
+const closeSidebarBtn = document.getElementById("closeSidebar");
+const sidebarEl = document.getElementById("sidebar");
+
+if(closeSidebarBtn){
+  closeSidebarBtn.addEventListener("click", ()=> {
+    sidebarEl.classList.remove("open");
+    sidebarEl.setAttribute("aria-hidden","true");
+  });
+}
+
+document.addEventListener("keydown", (e)=>{
+  if(e.key === "Escape"){
+    sidebarEl.classList.remove("open");
+    sidebarEl.setAttribute("aria-hidden","true");
+  }
+});
+
+const GITHUB_USER = "ObyMoods";       // nama akun GitHub
+const GITHUB_REPO = "bugdeath";       // nama repo
+const VERSION_FILE = "version.json";  // file versi
+
+async function loadAppVersion() {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${VERSION_FILE}?ts=${Date.now()}`,
+      { headers: { "Accept": "application/vnd.github.v3+json" } }
+    );
+    const data = await res.json();
+    const content = atob(data.content);
+    const json = JSON.parse(content);
+
+    window.APP_VERSION = json.version; 
+    document.getElementById("updateMsg").textContent = `✅ Versi saat ini: ${window.APP_VERSION}`;
+  } catch (e) {
+    console.error("Gagal ambil versi:", e);
+    window.APP_VERSION = "0.0.0"; 
+  }
+}
+
+$("#btnUpdateWeb").addEventListener("click", async ()=>{
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${VERSION_FILE}?ts=${Date.now()}`,
+      { headers: { "Accept": "application/vnd.github.v3+json" } }
+    );
+    const data = await res.json();
+    const content = atob(data.content);
+    const json = JSON.parse(content);
+
+    if (json.version !== window.APP_VERSION) {
+      $("#updateMsg").textContent = `⚡ Versi baru ${json.version} ditemukan, merefresh...`;
+      setTimeout(()=>location.reload(true), 1500);
+    } else {
+      $("#updateMsg").textContent = `✅ Sudah versi terbaru (${window.APP_VERSION})`;
+    }
+  } catch (e) {
+    $("#updateMsg").textContent = "❌ Update gagal: " + e.message;
+  }
+});
+
+loadAppVersion();
+
+const premiumAvatarEl = $("#premiumAvatar");
+
+const adminAvatarPreview = $("#adminAvatarPreview");
+const adminAvatarUrl = $("#adminAvatarUrl");
+const btnUpdateAvatar = $("#btnUpdateAvatar");
+const avatarMsgEl = $("#avatarMsg");
+
+function setAdminAvatar(url){
+  const finalUrl = url || "https://via.placeholder.com/120?text=Premium";
+
+  localStorage.setItem("tb_admin_avatar", finalUrl);
+
+  if(adminAvatarPreview) adminAvatarPreview.src = finalUrl;
+
+  if(premiumAvatarEl) premiumAvatarEl.src = finalUrl;
+}
+
+const savedAvatar = localStorage.getItem("tb_admin_avatar");
+if(savedAvatar) setAdminAvatar(savedAvatar);
+else setAdminAvatar("");
+
+adminAvatarUrl.addEventListener("input", ()=>{
+  const url = adminAvatarUrl.value.trim();
+  if(adminAvatarPreview) adminAvatarPreview.src = url || "https://via.placeholder.com/120?text=Premium";
+});
+
+btnUpdateAvatar.addEventListener("click", ()=>{
+  const url = adminAvatarUrl.value.trim();
+  if(!url){
+    avatarMsgEl.innerHTML = `<span style="color:var(--danger)">❌ Masukkan link foto Catbox yang valid!</span>`;
+    return;
+  }
+
+  setAdminAvatar(url);
+
+  avatarMsgEl.innerHTML = `<span style="
+    display:inline-block;
+    padding:6px 12px;
+    border-radius:8px;
+    background: linear-gradient(90deg, #00f3de, #00d8c5);
+    color:#042;
+    font-weight:700;
+    box-shadow:0 0 12px #00f3de,0 0 24px #00d8c5;
+    animation: glow 1.2s ease-in-out 1;
+  ">✅ Avatar login premium berhasil diupdate!</span>`;
+
+  setTimeout(()=>{ avatarMsgEl.innerHTML = ""; }, 3000);
+});
+</script>
+</body>
+</html>
