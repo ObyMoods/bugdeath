@@ -77,7 +77,6 @@ async function renderAdmin(){
       <span>👤 ${u.info||"Tanpa Nama"}</span>
       <span>🆔 ${u.id}</span>
       <span>⏳ ${u.days} hari</span>
-      <button class="btn danger del-prem" data-i="${i}">❌</button>
     </div>`).join("") : `<div class="small">Belum ada user premium</div>`;
 
   // TEXTS
