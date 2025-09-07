@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BUG DEATH TELEGRAM</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <!-- Topbar -->
+  <header class="topbar">
+    <button id="menuBtn" class="icon-btn" aria-label="menu">☰</button>
+    <div class="brand">BUG DEATH TELEGRAM</div>
+    <div class="tools">Selamat Datang</div>
+  </header>
+
+  <!-- Sidebar Admin -->
+  <aside id="sidebar" class="sidebar" aria-hidden="true">
+    <div class="side-head">
+      <h2>Admin</h2>
+      <button id="closeSidebar" class="icon-btn" aria-label="close">✕</button>
+    </div>
+
+    <div class="card compact">
+      <label>Username</label>
+      <input id="adminUser" placeholder="Username admin" />
+      <label>Password</label>
+      <div class="pass-wrap">
+        <input id="adminPass" type="password" placeholder="Password admin" />
+        <button id="togglePass" class="mini-btn">👁</button>
+      </div>
+      <div class="row">
+        <button id="btnAdminLogin" class="btn primary">Login Admin</button>
+        <button id="btnAdminLogout" class="btn" style="display:none;">Logout</button>
+      </div>
+      <div id="adminMsg" class="status"></div>
+    </div>
+
+    <div id="adminArea" style="display:none;">
+
+      <!-- List Premium -->
+      <div class="card compact">
+        <h3>Daftar Premium User</h3>
+        <div id="premList" class="list"></div>
+      </div>
+
+      <div class="card compact">
+        <h3>Kelola Text</h3>
+        <div class="row">
+          <input id="newText" placeholder="Teks baru…" />
+          <button id="addText" class="btn primary">Tambah</button>
+        </div>
+        <button id="clearText" class="btn danger outline">Hapus Semua</button>
+        <div id="textList" class="list"></div>
+      </div>
+
+      <div class="card compact">
+        <h3>Kelola Sticker</h3>
+        <div class="row">
+          <input id="newSticker" placeholder="Sticker file_id…" />
+          <button id="addSticker" class="btn primary">Tambah</button>
+        </div>
+        <button id="clearStickers" class="btn danger outline">Hapus Semua</button>
+        <div id="stickerList" class="list"></div>
+      </div>
+
+      <div class="card compact">
+        <h3>Avatar Premium</h3>
+        <div class="row">
+          <input id="adminAvatarUrl" placeholder="Link avatar (jpg/png)" />
+          <button id="btnUpdateAvatar" class="btn primary">Update</button>
+        </div>
+        <img id="adminAvatarPreview" class="avatar sm" src="https://via.placeholder.com/120?text=Premium" alt="preview" />
+        <div id="avatarMsg" class="status"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Pages -->
+  <main id="homePage" class="page active">
+    <h2 class="page-title">Login User Premium</h2>
+    <div class="card center">
+      <img id="premiumAvatar" class="avatar" src="https://via.placeholder.com/160/1b0029/ffffff?text=User" alt="avatar" />
+      <input id="loginId" class="big-input" placeholder="Masukkan ID Premium" />
+      <div class="row">
+        <button id="btnLogin" class="btn xl primary">Login</button>
+        <button id="btnReset" class="btn xl">Reset</button>
+      </div>
+      <div id="loginMsg" class="status"></div>
+    </div>
+  </main>
+
+  <main id="bugPage" class="page">
+    <div class="card">
+      <h3>😈 Kirim Bug</h3>
+      <label>Tujuan (ID user/grup, @username)</label>
+      <input id="target" placeholder="Masukkan ID user/grup atau @username" />
+
+      <div class="row two">
+        <div class="col">
+          <label>Jenis</label>
+          <select id="typeSelect">
+            <option value="text">Text</option>
+            <option value="sticker">Sticker</option>
+          </select>
+        </div>
+        <div class="col">
+          <label>Jumlah</label>
+          <input id="count" type="number" min="1" value="1" />
+        </div>
+      </div>
+
+      <label>Tulis Pesan (opsional)</label>
+      <input id="bugMessage" placeholder="Masukkan teks bug…" />
+
+      <label>Pilih Type Bug</label>
+      <select id="contentSelect"></select>
+
+      <div class="divider"></div>
+
+      <h3>Token Bot</h3>
+      <div class="row">
+        <input id="newToken" placeholder="Masukkan Bot Token (123456:ABC)" />
+        <button id="addToken" class="btn primary">Tambah</button>
+      </div>
+      <div id="tokenList" class="list muted">Belum ada token</div>
+
+      <div class="row">
+        <button id="btnSend" class="btn xl primary">Kirim Bug</button>
+        <button id="btnStop" class="btn xl outline">Stop</button>
+      </div>
+      <div id="sendMsg" class="status scroll"></div>
+    </div>
+  </main>
+
+  <main id="profilePage" class="page">
+    <h2 class="page-title">Profile</h2>
+    <div id="profileInfo" class="card"></div>
+    <button id="btnLogout" class="btn danger">Logout</button>
+  </main>
+
+  <!-- Footer Nav -->
+  <nav class="footer-nav" id="footerNav" style="display:none;">
+    <button class="nav-btn" data-page="bug">🔥 Bug</button>
+    <button class="nav-btn" data-page="profile">👤 Profile</button>
+  </nav>
+
+  <script src="script.js"></script>
+</body>
+</html>
