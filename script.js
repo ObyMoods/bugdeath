@@ -3,8 +3,8 @@ const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 const load = (k, def) => { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : def; } catch(e){ return def; } }
 
 // ===== Admin Credentials =====
-const ADMIN_USERNAME = "ObyMoods";
-const ADMIN_PASSWORD = "12345";
+const ADMIN_USERNAME = "DeathKings";
+const ADMIN_PASSWORD = "kontol";
 
 // ===== Global Variables =====
 let texts = load("tb_texts", []);
