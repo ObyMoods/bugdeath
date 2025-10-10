@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pterodactyl Quick Create</title>
+
+  <!-- Use Google font & simple icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#07070a;
+      --card:#0f1116;
+      --muted:#99a0b3;
+      --accent1:#00c6ff;
+      --accent2:#0072ff;
+      --glass: rgba(255,255,255,0.03);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Inter,system-ui,Arial;
+      background: radial-gradient(1200px 600px at 10% 20%, rgba(0,198,255,0.06), transparent),
+                  radial-gradient(900px 400px at 90% 80%, rgba(0,114,255,0.04), transparent),
+                  var(--bg);
+      color:#e6eef8;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
+
+    .wrap{
+      width:980px;
+      max-width:100%;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:20px;
+    }
+
+    /* LEFT: profile + info */
+    .left {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.04);
+      padding:20px;
+      border-radius:14px;
+      box-shadow: 0 6px 24px rgba(2,6,23,0.6);
+    }
+    .avatar{
+      width:110px;height:110px;border-radius:999px;margin:0 auto;display:block;object-fit:cover;border:3px solid rgba(0,198,255,0.15);
+      box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    }
+    .uname{ text-align:center;margin-top:12px;font-weight:600;font-size:20px;color:var(--accent1)}
+    .urole{text-align:center;color:var(--muted);font-size:13px;margin-top:4px}
+    .balance{margin-top:12px;text-align:center;color:#bfefff;font-weight:600}
+
+    .meta { margin-top:18px; padding:14px; background:var(--card); border-radius:10px; border:1px solid rgba(255,255,255,0.02);}
+    .meta-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.02)}
+    .meta-row:last-child{border-bottom:none}
+    .meta .k{color:var(--muted);font-size:13px} .meta .v{font-weight:600}
+
+    /* RIGHT: form & list */
+    .right {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.04);
+      padding:20px;
+      border-radius:14px;
+      box-shadow: 0 6px 24px rgba(2,6,23,0.6);
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+
+    .card {
+      background: transparent;
+      border-radius:10px;
+      padding:12px;
+    }
+
+    .title {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+    }
+    .title h3{margin:0;color:var(--accent2)}
+    .login-box, .create-box {
+      background: linear-gradient(180deg, rgba(255,255,255,0.012), transparent);
+      border:1px solid rgba(255,255,255,0.02);
+      padding:14px;border-radius:12px;
+    }
+
+    label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+    input[type=text], input[type=password] , button {
+      width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); background:rgba(255,255,255,0.01); color:inherit;
+      outline:none; font-size:14px;
+    }
+    select{width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.03);color:inherit}
+
+    .btn {
+      display:inline-flex;gap:8px;align-items:center;justify-content:center;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:#071022; font-weight:700; border:none; cursor:pointer;
+      box-shadow: 0 8px 20px rgba(0,120,255,0.08);
+    }
+    .btn.secondary{background:transparent;color:var(--accent1);border:1px solid rgba(0,198,255,0.08);font-weight:600}
+
+    .small-muted{font-size:12px;color:var(--muted)}
+    .list { display:flex;flex-direction:column; gap:8px; max-height:320px; overflow:auto; padding-right:6px }
+    .list-item { background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); border-radius:10px; padding:10px; border:1px solid rgba(255,255,255,0.02); display:flex;justify-content:space-between;align-items:center }
+    .list-item .left{ font-weight:600 } .list-item .right { color:var(--muted); font-size:13px }
+
+    /* responsive */
+    @media(max-width:920px){
+      .wrap{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+
+    <!-- LEFT PANEL -->
+    <div class="left">
+      <img src="https://i.ibb.co/0MbSLzN/profile.jpg" class="avatar" alt="avatar">
+      <div class="uname" id="profileName">—</div>
+      <div class="urole">user</div>
+      <div class="balance" id="profileBalance">Rp 0</div>
+
+      <div class="meta" style="margin-top:18px">
+        <div class="meta-row"><div class="k">Last login</div><div class="v" id="metaLogin">—</div></div>
+        <div class="meta-row"><div class="k">Status</div><div class="v" id="metaStatus">Free</div></div>
+        <div class="meta-row"><div class="k">Panel domain</div><div class="v" id="metaDomain">—</div></div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right">
+
+      <!-- LOGIN -->
+      <div class="login-box card" id="loginBox">
+        <div class="title">
+          <h3>Login</h3>
+          <div class="small-muted">Masuk dulu untuk buat server</div>
+        </div>
+
+        <div style="margin-top:12px">
+          <label>Username</label>
+          <input id="loginUser" type="text" placeholder="admin">
+        </div>
+        <div style="margin-top:8px">
+          <label>Password</label>
+          <input id="loginPass" type="password" placeholder="password">
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button class="btn" id="btnLogin" onclick="doLogin()">LOGIN</button>
+          <button class="btn secondary" onclick="fillDemo()">Demo</button>
+        </div>
+
+        <div id="loginMsg" class="small-muted" style="margin-top:10px"></div>
+      </div>
+
+      <!-- CREATE (hidden until login) -->
+      <div class="create-box card" id="createBox" style="display:none">
+        <div class="title">
+          <h3>Create Server</h3>
+          <div class="small-muted">Hanya kirim username & password — sisanya di backend</div>
+        </div>
+
+        <div style="margin-top:12px">
+          <label>Username server</label>
+          <input id="srvUser" type="text" placeholder="contoh: zennsyx">
+        </div>
+
+        <div style="margin-top:8px">
+          <label>Password server</label>
+          <input id="srvPass" type="password" placeholder="masukkan password server">
+        </div>
+
+        <div style="margin-top:8px">
+          <label>Pilih RAM</label>
+          <select id="srvRam">
+            <option value="">-- pilih RAM --</option>
+            <option value="1">1 GB</option>
+            <option value="2">2 GB</option>
+            <option value="3">3 GB</option>
+            <option value="4">4 GB</option>
+            <option value="5">5 GB</option>
+            <option value="6">6 GB</option>
+            <option value="7">7 GB</option>
+            <option value="8">8 GB</option>
+            <option value="9">9 GB</option>
+            <option value="10">10 GB</option>
+            <option value="unli">UNLIMITED</option>
+          </select>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button class="btn" onclick="createServer()">CREATE</button>
+          <button class="btn secondary" onclick="logout()">LOGOUT</button>
+        </div>
+
+        <div id="createMsg" class="small-muted" style="margin-top:10px"></div>
+      </div>
+
+      <!-- LIST CREATED -->
+      <div class="card" style="margin-top:8px">
+        <div class="title">
+          <h3>Server List</h3>
+          <div class="small-muted">Riwayat pembuatan</div>
+        </div>
+        <div class="list" id="serverList" style="margin-top:10px">
+          <div class="list-item"><div class="left">Belum ada server</div><div class="right">—</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  const API_BASE = 'http://localhost:3000/api';
+
+  const ADMIN_USER = 'admin';
+  const ADMIN_PASS = '12345';
+
+  // UI refs
+  const profileName = document.getElementById('profileName');
+  const profileBalance = document.getElementById('profileBalance');
+  const metaDomain = document.getElementById('metaDomain');
+  const metaLogin = document.getElementById('metaLogin');
+
+  const loginBox = document.getElementById('loginBox');
+  const createBox = document.getElementById('createBox');
+  const loginMsg = document.getElementById('loginMsg');
+  const createMsg = document.getElementById('createMsg');
+  const serverList = document.getElementById('serverList');
+
+  // Demo filler
+  function fillDemo(){
+    document.getElementById('loginUser').value = ADMIN_USER;
+    document.getElementById('loginPass').value = ADMIN_PASS;
+  }
+
+  function showMessage(node, txt, ok=true){
+    node.textContent = txt;
+    node.style.color = ok ? '#9fe6ff' : '#ff8b8b';
+  }
+
+  async function doLogin(){
+    const u = document.getElementById('loginUser').value.trim();
+    const p = document.getElementById('loginPass').value.trim();
+    if(!u || !p){ showMessage(loginMsg, 'Isi username & password', false); return; }
+
+    // local demo auth (optional call to backend /api/login could be added)
+    if(u !== ADMIN_USER || p !== ADMIN_PASS){
+      showMessage(loginMsg, 'Username / password salah', false);
+      return;
+    }
+
+    // success
+    profileName.textContent = u;
+    profileBalance.textContent = 'Rp 1.000';
+    metaDomain.textContent = 'diset di server';
+    metaLogin.textContent = (new Date()).toLocaleString();
+
+    loginBox.style.display = 'none';
+    createBox.style.display = 'block';
+    showMessage(loginMsg, 'Login sukses', true);
+  }
+
+  function logout(){
+    document.getElementById('loginUser').value='';
+    document.getElementById('loginPass').value='';
+    loginBox.style.display = 'block';
+    createBox.style.display = 'none';
+    showMessage(loginMsg, 'Logged out', true);
+  }
+
+  async function createServer(){
+    const username = document.getElementById('srvUser').value.trim();
+    const password = document.getElementById('srvPass').value.trim();
+    const ram = document.getElementById('srvRam').value;
+
+    if(!username || !password || !ram){ showMessage(createMsg, 'Lengkapi semua field', false); return; }
+
+    showMessage(createMsg, 'Mengirim request ke server ...', true);
+
+    try {
+      const res = await fetch(API_BASE + '/create-server', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ username, password, ram })
+      });
+
+      const data = await res.json();
+
+      if(!res.ok || !data.success){
+        showMessage(createMsg, 'Gagal: ' + (data.message || res.statusText), false);
+        return;
+      }
+
+      showMessage(createMsg, 'Berhasil: ' + (data.message || 'Server dibuat'), true);
+      metaDomain.textContent = data.panel_domain || metaDomain.textContent;
+      // append to list
+      const item = document.createElement('div');
+      item.className = 'list-item';
+      item.innerHTML = `<div class="left">${username} <div style="font-size:12px;color:var(--muted);font-weight:400">${data.server_name || ''}</div></div>
+                        <div class="right">${ram} • <a href="${data.url}" target="_blank" style="color:var(--accent1);text-decoration:none">Open</a></div>`;
+      // remove "Belum ada server"
+      if(serverList.children.length === 1 && serverList.children[0].textContent.includes('Belum ada server')){
+        serverList.innerHTML = '';
+      }
+      serverList.prepend(item);
+
+      // clear fields
+      document.getElementById('srvUser').value='';
+      document.getElementById('srvPass').value='';
+      document.getElementById('srvRam').value='';
+
+    } catch (err){
+      console.error(err);
+      showMessage(createMsg, 'Terjadi error koneksi', false);
+    }
+  }
+</script>
+
+</body>
+</html>
