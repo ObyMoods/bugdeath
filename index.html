@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | KlzPanel</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
+  body { display:flex; justify-content:center; align-items:center; height:100vh; background:linear-gradient(135deg,#0f172a,#1e293b); color:#fff; }
+  .login-box { background:#1e293b; padding:40px 35px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.4); width:100%; max-width:400px; text-align:center; }
+  h2 { margin-bottom:30px; color:#38bdf8; font-size:2rem; }
+  input { width:100%; padding:14px; border:none; outline:none; border-radius:10px; margin-bottom:20px; font-size:1rem; background:#334155; color:#fff; transition:.3s; }
+  input:focus { background:#475569; }
+  button { width:100%; padding:14px; border:none; border-radius:10px; background:#38bdf8; color:#0f172a; font-size:1.1rem; font-weight:600; cursor:pointer; transition:.3s; }
+  button:hover { background:#0ea5e9; }
+  .error { margin-top:15px; color:#f87171; font-weight:500; }
+  footer { margin-top:25px; font-size:0.85rem; color:#94a3b8; }
+</style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>🔐 KlzPanel Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button id="loginBtn">Masuk</button>
+    <div id="error" class="error"></div>
+    <footer>© 2025 KlzBotz Panel System</footer>
+  </div>
+
+<script>
+const loginBtn = document.getElementById("loginBtn");
+const errorDiv = document.getElementById("error");
+
+// Data login yang bisa diatur oleh owner
+const accounts = {
+  "owner": { username: "admin", password: "klz123", role: "owner" },
+  "user1": { username: "user", password: "user123", role: "user" }
+};
+
+loginBtn.addEventListener("click", () => {
+  const user = document.getElementById("username").value.trim();
+  const pass = document.getElementById("password").value.trim();
+
+  if (!user || !pass) {
+    errorDiv.textContent = "❌ Isi semua kolom!";
+    return;
+  }
+
+  // Cek akun
+  const account = Object.values(accounts).find(acc => acc.username === user && acc.password === pass);
+
+  if (account) {
+    // Simpan sesi di localStorage
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("role", account.role);
+    localStorage.setItem("username", account.username);
+
+    // Arahkan ke dashboard
+    window.location.href = "local.html";
+  } else {
+    errorDiv.textContent = "❌ Username atau password salah!";
+  }
+});
+</script>
+</body>
+</html>
